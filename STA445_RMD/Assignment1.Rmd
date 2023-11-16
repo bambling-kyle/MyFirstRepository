@@ -1,0 +1,205 @@
+---
+title: "Assignment1"
+author: "Kyle Bambling"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readxl)
+library(googlesheets4)
+```
+
+## Question 1
+
+Create a vector of three elements (2,4,6) and name that vector `vec_a`. Create a second vector, `vec_b`, that contains (8,10,12). Add these two vectors together and name the result `vec_c`.
+
+```{r 1}
+vec_a <- c(2,4,6)
+vec_b <- c(8,10,12)
+vec_c <- vec_a + vec_b
+vec_c
+```
+
+## Question 2
+
+Create a vector, named `vec_d`, that contains only two elements (14,20). Add this vector to `vec_a`. What is the result and what do you think R did (look up the recycling rule using Google)? What is the warning message that R gives you?
+
+```{r 2, warning=FALSE}
+vec_d <- c(14,20)
+vec_d + vec_a
+```
+
+It takes the first element from the longer vector and uses that for the third addition calculation.
+
+## Question 3
+
+Next add 5 to the vector vec_a. What is the result and what did R do? Why doesn't in give you a warning message similar to what you saw in the previous problem?
+
+```{r 3}
+vec_a + 5
+```
+
+It adds 5 to each element of the vector.
+
+## Question 4
+
+Generate the vector of integers $\left\{ 1,2,\dots5\right\}$ in two different ways.  
+a) First using the `seq()` function  
+b) Using the `a:b` shortcut.
+
+```{r 4}
+#part a
+seq(1,5)
+
+#part b
+1:5
+```
+
+## Question 5
+
+Generate the vector of even numbers $\left\{ 2,4,6,\dots,20\right\}$  
+a) Using the seq() function and  
+b) Using the a:b shortcut and some subsequent algebra. *Hint: Generate the vector 1-10 and then multiple it by 2*.
+    
+```{r 5}
+#part a
+seq(2, 20, by = 2)
+
+#part b
+1:10 * 2
+```
+
+## Question 6
+
+Generate a vector of 21 elements that are evenly placed between 0 and 1 using the `seq()` command and name this vector `x`.
+
+```{r 6}
+x <- seq(0,1, length.out = 21)
+x
+```
+
+## Question 7
+
+Generate the vector $\left\{ 2,4,8,2,4,8,2,4,8\right\}$ 
+  using the `rep()` command to replicate the vector c(2,4,8).
+  
+```{r 7}
+rep(c(2,4,8), 3)
+```
+
+## Question 8
+
+Generate the vector $\left\{ 2,2,2,2,4,4,4,4,8,8,8,8\right\}$
+  using the `rep()` command. You might need to check the help file for rep() to see all of the options that rep() will accept. In particular, look at the optional argument `each=`.
+
+```{r 8}
+rep(c(2,4,8), each=4)
+```
+
+## Question 10
+
+In this problem, we will work with the matrix 
+
+  \[ \left[\begin{array}{ccccc}
+  2 & 4 & 6 & 8 & 10\\
+  12 & 14 & 16 & 18 & 20\\
+  22 & 24 & 26 & 28 & 30
+  \end{array}\right]\]
+    
+  a) Create the matrix in two ways and save the resulting matrix as `M`.
+      i. Create the matrix using some combination of the `seq()` and `matrix()` commands.
+      ii. Create the same matrix by some combination of multiple `seq()` commands and either the `rbind()` or `cbind()` command. 
+
+  b) Extract the second row out of `M`.
+  c) Extract the element in the third row and second column of `M`.
+    
+```{r 10}
+#part a i
+matrix( seq(2,30, by=2), nrow = 3, byrow = TRUE)  
+# ii
+M <- rbind(seq(2,10, by=2), seq(12,20, by=2), seq(22,30, by=2))  
+
+#part b
+M[2,]
+
+#part c
+M[3,2]
+```
+
+## Question 12
+
+The following code creates a `data.frame` and then has two different methods for removing the rows with `NA` values in the column `Grade`. Explain the difference between the two.
+
+```{r, eval=FALSE}
+df <- data.frame(name= c('Alice','Bob','Charlie','Daniel'),
+                 Grade = c(6,8,NA,9))
+
+df[ -which(  is.na(df$Grade) ), ]
+df[  which( !is.na(df$Grade) ), ]
+```
+
+The first one finds which rows have the NA value and displays the other rows,  
+the second one finds and displays every row that does not have the value NA.
+
+## Question 14
+
+Create and manipulate a list.
+    a) Create a list named my.test with elements
+        + x = c(4,5,6,7,8,9,10)
+        + y = c(34,35,41,40,45,47,51)
+        + slope = 2.82
+        + p.value = 0.000131
+    b) Extract the second element in the list.
+    c) Extract the element named `p.value` from the list.
+    
+```{r 14}
+#part a
+x <- c(4,5,6,7,8,9,10)
+y <- c(34,35,41,40,45,47,51)
+slope <- 2.82
+p.value <- 0.000131
+my.test <- list(x=x, y=y, slope=slope, p.value=p.value)
+my.test
+
+#part b
+my.test[2]
+
+#part c
+my.test[['p.value']]
+```
+
+# Chapter 9
+
+## Question 1
+
+Download from GitHub the data file 
+[Example_5.xls](https://github.com/dereksonderegger/444/raw/master/data-raw/Example_5.xls). 
+Open it in Excel and figure out which sheet of data we should import into R. 
+At the same time figure out how many initial rows need to be skipped. Import 
+the data set into a data frame and show the structure of the imported data 
+using the `str()` command. Make sure that your data has $n=31$ observations
+and the three columns are appropriately named. If you make any modifications 
+to the data file, comment on those modifications.
+
+```{r 9-1}
+cherry_tree <- read_excel('Example_5.xls', sheet='RawData', range='A5:C36')
+head(cherry_tree)
+```
+
+## Question 2
+
+Download from GitHub the data file 
+[Example_3.xls](https://github.com/dereksonderegger/444/raw/master/data-raw/Example_3.xls). 
+Import the data set into a data frame and show the structure of the imported 
+data using the `tail()` command which shows the last few rows of a data table. 
+Make sure the Tesla values are `NA` where appropriate and that both 
+`-9999` and `NA` are imported as NA values. If you make any modifications to 
+the data file, comment on those modifications.
+
+```{r 9-2}
+car_xl <- read_excel('Example_3.xls', sheet='data', range='A1:L34',na = c(-9999, 'NA'))
+tail(car_xl)
+```

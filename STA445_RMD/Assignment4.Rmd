@@ -1,0 +1,136 @@
+---
+title: "Assignment4"
+author: "Kyle Bambling"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## Question 1
+
+A common task is to take a set of data that has multiple categorical 
+variables and create a table of the number of cases for each combination.
+An introductory statistics textbook contains a dataset summarizing student
+surveys from several sections of an intro class. The two variables of
+interest for us are `Gender` and `Year` which are the students gender and
+year in college.
+
+a) Download the dataset and correctly order the `Year` variable using the
+        following:
+
+```{r}
+Survey <- read.csv('https://www.lock5stat.com/datasets3e/StudentSurvey.csv', na.strings=c('',' ')) %>%
+  mutate( Year = factor(Year, levels = c( 'FirstYear', 'Sophomore','Junior','Senior')))
+head(Survey)
+```
+
+b) Using some combination of `dplyr` functions, produce a data set with
+        eight rows that contains the number of responses for each gender:year
+        combination. Make sure your table orders the `Year` variable in the
+        correct order of `First Year`, `Sophmore`, `Junior`, and then `Senior`.
+        
+```{r}
+survey.2 <- Survey %>%
+  count(Year, Sex) %>%
+  filter(!is.na(Year))
+survey.2
+```
+
+c) Using `tidyr` commands, produce a table of the number of responses
+
+```{r}
+pivot_wider(survey.2, names_from = Year, values_from = n)
+```
+
+## Question 2
+
+From the book website, there is a .csv file of the daily maximum temperature
+in Flagstaff at the Pulliam Airport.
+
+```{r}
+airport <- read.csv('https://raw.githubusercontent.com/dereksonderegger/444/master/data-raw/FlagMaxTemp.csv')
+```
+
+a) Create a line graph that gives the daily maximum temperature for 2005.
+
+```{r}
+airport.2005 <- airport %>% filter(Year == 2005)
+airport.2005.long <- pivot_longer(airport.2005, X1:X31, names_to = 'Days', values_to = 'Temps')
+airport.2005.long <- airport.2005.long %>% 
+  mutate( Days = str_replace(Days, pattern='X', replacement='') ) %>%
+  drop_na() %>%
+  mutate( Date = make_date(year=Year, month=Month, day=Days))
+
+airport.2005.long %>% ggplot( aes(x=Date, y=Temps) ) +
+  geom_line()
+```
+
+b) Create a line graph that gives the monthly average maximum temperature
+        for 2013 - 2015.
+
+```{r}
+airport.2013 <- airport %>% filter(2013 <= Year & Year <= 2015)
+airport.2013.long <- pivot_longer(airport.2013, X1:X31, names_to = 'Days', values_to = 'Temps')
+airport.2013.long <- airport.2013.long %>%
+  mutate( Days = str_replace(Days, pattern='X', replacement='') ) %>%
+  drop_na() %>%
+  group_by(Year, Month) %>%
+  summarise( Mean = mean(Temps)) %>%
+  mutate( Date = make_date(year=Year, month=Month))
+
+airport.2013.long %>%
+  ggplot( aes(x=Date, y=Mean)) +
+  geom_line()
+  
+```
+## Question 4
+
+For this problem we will consider two simple data sets.
+
+```{r}
+A <- tribble(
+  ~Name, ~Car,
+  'Alice', 'Ford F150',
+  'Bob',   'Tesla Model III',
+  'Charlie', 'VW Bug')
+
+B <- tribble(
+  ~First.Name, ~Pet,
+  'Bob',  'Cat',
+  'Charlie', 'Dog',
+  'Alice', 'Rabbit')
+```
+
+a) Squish the data frames together to generate a data set with three rows
+        and three columns. Do two ways: first using `cbind` and then using one
+        of the `dplyr` `join` commands.
+        
+```{r}
+B <- rename( B, Name = First.Name )
+ABbind <- cbind(A, B)
+
+ABbind <- full_join(A,B)
+ABbind
+```
+
+b) It turns out that Alice also has a pet guinea pig. Add another row to
+        the `B` data set. Do this using either the base function `rbind`, or
+        either of the `dplyr` functions `add_row` or `bind_rows`.
+
+```{r}
+B <- B %>% add_row( Name = 'Alice', Pet = 'Guinea Pig')
+```
+
+c) Squish the `A` and `B` data sets together to generate a data set with
+        four rows and three columns. Do this two ways: first using `cbind` and
+        then using one of the `dplyr` `join` commands. Which was easier to
+        program? Which is more likely to have an error.
+        
+```{r}
+ABjoin <- full_join(A, B)
+ABjoin
+```
